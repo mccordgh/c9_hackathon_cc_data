@@ -1,10 +1,14 @@
-import { LolApi, Constants } from 'twisted';
+import { LolApi } from 'twisted';
 import { IBaseApiParams } from 'twisted/dist/base/base.utils';
 import { RegionGroups, Regions } from 'twisted/dist/constants';
 import { ApiResponseDTO, MatchV5DTOs, SummonerV4DTO } from 'twisted/dist/models-dto';
 import { MatchQueryV5DTO } from 'twisted/dist/models-dto/matches/query-v5';
 import * as apiKey from '../data/apiKey.json';
-import { Champion, ChampionList } from '../models/Champion';
+import { ChampionList } from '../models/Champion';
+
+if (apiKey.key === "YOUR API KEY HERE") {
+	throw new Error("YOU NEED TO ADD YOUR API KEY TO src/data/apiKey.json!! It will not be commited as that file is in .gitignore!!");
+}
 
 const config: IBaseApiParams = {
    rateLimitRetry: false,
@@ -69,11 +73,17 @@ export class DataProvider {
 		// this.getMatchData();
 		// this.getPuuids();
 		// this.getMatcheIdsByPuuids();
-		this.getChampDataFromMatches();
+		// this.getChampDataFromMatches();
+		return await this.getChampData();
+	}
+
+	private static getChampData = async(): Promise<ChampionList> => {
+		const json: any = await import('../data/champions/champions_cc_data.json');
+
+		return json.default;
 	}
 
 	private static getChampDataFromMatches = async() => {
-		let final: string[] = [];
 		let json: any;
 		let champions: ChampionList = {};
 
@@ -89,16 +99,16 @@ export class DataProvider {
 				const match: ApiResponseDTO<MatchV5DTOs.MatchDto> = await api.MatchV5.get(item, Settings.regionGroup);
 				
 				champions = this.gatherChampDataFromMatchData(champions, match);
-				console.log({champions})
 			}
 			catch (e) {
 				break;
 			}
 		}
+
+		this.saveToJsonFile(champions, "champions_cc_data.json");
 	}
 
 	private static gatherChampDataFromMatchData = (champions: ChampionList, matchData: ApiResponseDTO<MatchV5DTOs.MatchDto>): ChampionList => {
-		console.log(matchData);
 		for (const item of matchData.response.info.participants) {
 			if (!champions[item.championName]) {
 				champions[item.championName] = {

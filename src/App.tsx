@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { IBaseApiParams } from 'twisted/dist/base/base.utils';
-
-// import * as matchList1 from "./data/matches/matchlist_na1.json";
 
 import './App.css';
-import { RegionGroups, Regions } from 'twisted/dist/constants';
-import { ApiResponseDTO, MatchDto, MatchV5DTOs, SummonerV4DTO } from 'twisted/dist/models-dto';
 import { DataProvider } from './services/DataProvider';
-import { Champion } from './models/Champion';
+import { ChampionList } from './models/Champion';
 
 // region match id prefixes?
 // EUN1.json
@@ -17,49 +12,65 @@ import { Champion } from './models/Champion';
 // NA1.json
 
 const App = () => {
-  const [champData, setChampData] = useState<Champion[]>();
-  // const [summonerData, setSummonerData] = useState<ApiResponseDTO<SummonerV4DTO>>();
+  const [champData, setChampData] = useState<ChampionList>();
 
   useEffect(() => {
     if (!champData) {
       getChampCcData();
     }
-  //   if (!matchData) {
-  //     getMatchData("NA1_4069933342");
-  //   }
-
-  //   if (!summonerData) {
-  //     getSummonerData("tyler1");
-  //   }
   });
 
   const getChampCcData = async() => {
-    DataProvider.getChampCcData();
-    // const data: Champion[] = await DataProvider.getChampCcData();
+    const data = await DataProvider.getChampCcData();
 
-    // setChampData(data);
+    setChampData(data);
   }
 
-  // const getSummonerData = async(name: string) => {
-  //   const data = await api.Summoner.getByName(name, Settings.region);
+  const renderChampData = () => {
+    if (!champData) {
+      return (
+        <tr>
+          <td>
+            <h2>Loading Data...</h2>
+          </td>
+        </tr>
+      );
+    }
 
-  //   console.log({summoner: data});
+    const getAverage = (a: number, b: number): string => (a / (b / 60)).toFixed(3) + "/m";
 
-  //   setSummonerData(data);
-  // }
-
-  // const getMatchData = async(id: string) => {
-  //   const data = await api.MatchV5.get(id, Settings.regionGroup);
-
-  //   console.log({match: data});
-
-  //   setChampData(data);
-  // }
-
+    return Object.entries(champData).map(([champ, stats]) => {
+      return (
+        <tr key={champ}>
+          <td className="table--cell-name">{champ}</td>
+          <td className="table--cell">{stats.assists}</td>
+          <td className="table--cell">{stats.timePlayed}</td>
+          <td className="table--cell">{stats.timeCCingOthers}</td>
+          <td className="table--cell">{getAverage(stats.timeCCingOthers, stats.timePlayed)}</td>
+          <td className="table--cell">{stats.totalTimeCCDealt}</td>
+          <td className="table--cell">{getAverage(stats.totalTimeCCDealt, stats.timePlayed)}</td>
+        </tr>
+      )
+    })
+  }
 
   return (
     <div className="App">
-      <h1></h1>
+      <table>
+        <tbody>
+          <tr>
+            <td className="table--header">Champion</td>
+            <td className="table--header">Assists</td>
+            <td className="table--header">Time Played</td>
+            <td className="table--header">Time CCing Others</td>
+            <td className="table--header">Average Time CCing Others</td>
+            <td className="table--header">Time Spent CC'd</td>
+            <td className="table--header">Average Time Spent CC'd</td>
+          </tr>
+
+          {renderChampData()}
+        </tbody>
+      </table>
     </div>
   );
 }
