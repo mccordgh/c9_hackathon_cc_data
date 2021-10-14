@@ -43,6 +43,7 @@ const App = () => {
       return (
         <tr key={champ}>
           <td className="table--cell-name">{champ}</td>
+          <td className="table--cell">{stats.games}</td>
           <td className="table--cell">{stats.assists}</td>
           <td className="table--cell">{stats.timePlayed}</td>
           <td className="table--cell">{stats.timeCCingOthers}</td>
@@ -60,12 +61,13 @@ const App = () => {
         <tbody>
           <tr>
             <td className="table--header">Champion</td>
+            <td className="table--header">Game Played</td>
             <td className="table--header">Assists</td>
             <td className="table--header">Time Played</td>
             <td className="table--header">Time CCing Others</td>
             <td className="table--header">Average Time CCing Others</td>
-            <td className="table--header">Time Spent CC'd</td>
-            <td className="table--header">Average Time Spent CC'd</td>
+            <td className="table--header">Total Length of Applied CC</td>
+            <td className="table--header">Avg Total Length of CC</td>
           </tr>
 
           {renderChampData()}

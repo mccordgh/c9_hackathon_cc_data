@@ -73,7 +73,7 @@ export class DataProvider {
 		// this.getMatchData();
 		// this.getPuuids();
 		// this.getMatcheIdsByPuuids();
-		// this.getChampDataFromMatches();
+		// return this.getChampDataFromMatches();
 		return await this.getChampData();
 	}
 
@@ -83,18 +83,13 @@ export class DataProvider {
 		return json.default;
 	}
 
-	private static getChampDataFromMatches = async() => {
+	private static getChampDataFromMatches = async(): Promise<ChampionList> => {
 		let json: any;
 		let champions: ChampionList = {};
-
-		let count: number = 0;
 
 		json = await import('../data/matches/match_ids.json');
 
 		for (const item of json.default) {
-			count++;
-			if (count > 2) break;
-
 			try {
 				const match: ApiResponseDTO<MatchV5DTOs.MatchDto> = await api.MatchV5.get(item, Settings.regionGroup);
 				
@@ -106,6 +101,8 @@ export class DataProvider {
 		}
 
 		this.saveToJsonFile(champions, "champions_cc_data.json");
+
+		return champions;
 	}
 
 	private static gatherChampDataFromMatchData = (champions: ChampionList, matchData: ApiResponseDTO<MatchV5DTOs.MatchDto>): ChampionList => {
@@ -113,6 +110,7 @@ export class DataProvider {
 			if (!champions[item.championName]) {
 				champions[item.championName] = {
 					assists: item.assists,
+					games: 1,
 					timeCCingOthers: item.timeCCingOthers,
 					timePlayed: item.timePlayed,
 					totalTimeCCDealt: item.totalTimeCCDealt,
@@ -120,6 +118,7 @@ export class DataProvider {
 			}
 			else {
 				champions[item.championName].assists += item.assists;
+				champions[item.championName].games += 1;
 				champions[item.championName].timeCCingOthers += item.timeCCingOthers;
 				champions[item.championName].timePlayed += item.timePlayed;
 				champions[item.championName].totalTimeCCDealt += item.totalTimeCCDealt;

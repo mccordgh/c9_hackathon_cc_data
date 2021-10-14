@@ -1,5 +1,6 @@
 export interface Champion {
 	assists: number;
+	games: number;
 	timeCCingOthers: number;
 	timePlayed: number;
 	totalTimeCCDealt: number;
