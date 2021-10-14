@@ -60,12 +60,11 @@ export class DataProvider {
 	static getChampCcData = async() => {
 	/* steps to get champion cc over several games:
 		- grab list of games from /lol/league/v4/entries/{queue}/{tier}/{division}
-		-> saved to json files in data/leagues to limit requests on rate-limited dev api key
-		- parse all unique summoner id's in that data
-		- make call per summoner id to /lol/summoner/v4/summoners/{summonerId} to get puuid
+		- pull out all unique summoner id's in that data
+		- make call per summoner id to /lol/summoner/v4/summoners/{summonerId} to get player's puuid for match api
 		- use puuid to call /lol/match/v5/matches/by-puuid/{puuid}/ids to get list of match ids
 		- make call per match id to /lol/match/v5/matches/{matchId} to get match data
-		- parse and separate data by champion.
+		- parse and separate data by champion => gatherChampDataFromMatchData().
 	*/
 
 		// for now these will make a call and then save a json file (because our api key is rate limited)
